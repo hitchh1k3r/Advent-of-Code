@@ -37,7 +37,7 @@ _shift_left_slice :: proc(x: ^$T/[]$E, amount : int)
     }
     for i in 0..<offset
     {
-      x[i] = 0;
+      x[i] = {};
     }
   }
   else
@@ -49,7 +49,7 @@ _shift_left_slice :: proc(x: ^$T/[]$E, amount : int)
     }
     for i in len(x)-offset..<len(x)
     {
-      x[i] = 0;
+      x[i] = {};
     }
   }
 }

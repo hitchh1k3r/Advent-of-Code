@@ -12,7 +12,6 @@ import "core:time"
 import "core:sys/windows"
 import "core:sort"
 import "core:unicode/utf8"
-import "core:container"
 
 import "../../../aoc";
 
@@ -26,7 +25,7 @@ PART_2_TEST_C_EXPECT : aoc.Result = nil;
 
 part_2 :: proc($MODE : aoc.LogicMode) -> aoc.Result
 {
-  using aoc, fmt, container;
+  using aoc, fmt;
 
   when MODE != .SOLUTION
   { // TESTS MODE
@@ -35,7 +34,7 @@ part_2 :: proc($MODE : aoc.LogicMode) -> aoc.Result
   }
   else
   { // SOLVE MODE
-    DEBUG  :: true;
+    DEBUG  :: false;
     TIMING :: false;
   }
 
@@ -66,13 +65,13 @@ part_2 :: proc($MODE : aoc.LogicMode) -> aoc.Result
   }
 
   unique_strings : map[string]bool;
-  all_states : Queue(State);
-  queue_reserve(&all_states, 10000000);
-  queue_push_back(&all_states, State{ 0, target });
+  all_states := cast(^PriorityQueue(State, 1000000))mem.alloc(size_of(PriorityQueue(State, 1000000)));
+  all_states.priority = proc (state : State) -> int { return 10000 - len(state.txt); };
+  push(all_states, State{ 0, target });
 
-  for queue_len(all_states) > 0
+  for
   {
-    using state := queue_pop_front(&all_states);
+    using state := pop(all_states);
     for rep, q in replacements
     {
       using rep;
@@ -86,7 +85,7 @@ part_2 :: proc($MODE : aoc.LogicMode) -> aoc.Result
           if str not_in unique_strings
           {
             unique_strings[str] = true;
-            queue_push_back(&all_states, State{ depth+1, str });
+            push(all_states, State{ depth+1, str });
             when DEBUG do printf("%v -> %v at %v\n", txt, str, depth+1);
           }
           index_offset := strings.index(txt[i+1:], value);
@@ -109,10 +108,6 @@ part_2 :: proc($MODE : aoc.LogicMode) -> aoc.Result
       }
     }
 
-    if depth > 4
-    {
-      return -1;
-    }
     if depth > 0
     {
       delete(txt);
