@@ -1,0 +1,325 @@
+package main;
+
+import "core:fmt"
+import "core:strconv"
+import "core:strings"
+import "core:mem"
+import "core:os"
+import "core:slice"
+import "core:math"
+import "core:time"
+import "core:sys/windows"
+import "core:sort"
+
+import "../../aoc";
+
+// TEST ANSWERS ////////////////////////////////////////////////////////////////////////////////////
+
+PART_2_TEST_A_EXPECT : aoc.Result = 26;
+PART_2_TEST_B_EXPECT : aoc.Result = nil;
+PART_2_TEST_C_EXPECT : aoc.Result = nil;
+
+// SOLUTION ////////////////////////////////////////////////////////////////////////////////////////
+
+part_2 :: proc($MODE : aoc.LogicMode) -> aoc.Result
+{
+  using aoc, fmt;
+
+  DEBUG :: false;
+
+  input := get_input(MODE);
+
+  allLines := lines(input);
+
+  width  := len(allLines[0]);
+  height := len(allLines);
+
+  cellsA := make([]rune, width*height);
+  cellsB := make([]rune, width*height);
+  counts := make([]int, width*height);
+
+  i := 0;
+  for line in allLines
+  {
+    for c in line
+    {
+      cellsA[i] = c;
+      i += 1;
+    }
+  }
+
+  count_neigbors :: proc(stride : int, source : []rune, i : int, $debug : bool) -> int
+  {
+    x := i % stride;
+    y := i / stride;
+    height := len(source)/stride;
+    count := 0;
+
+    ri := i;
+    lookLeft:
+    for rx := x; rx > 0; rx -= 1
+    {
+      ri -= 1;
+      switch source[ri]
+      {
+        case '#':
+          when debug
+          {
+            count += 1;
+          }
+          else
+          {
+            count += 1;
+          }
+          break lookLeft;
+        case 'L':
+          break lookLeft;
+      }
+    }
+
+    ri = i;
+    lookRight:
+    for rx := x; rx < stride-1; rx += 1
+    {
+      ri += 1;
+      switch source[ri]
+      {
+        case '#':
+          when debug
+          {
+            count += 10;
+          }
+          else
+          {
+            count += 1;
+          }
+          break lookRight;
+        case 'L':
+          break lookRight;
+      }
+    }
+
+    ri = i;
+    lookUp:
+    for ry := y; ry < height-1; ry += 1
+    {
+      ri += stride;
+      switch source[ri]
+      {
+        case '#':
+          when debug
+          {
+            count += 100;
+          }
+          else
+          {
+            count += 1;
+          }
+          break lookUp;
+        case 'L':
+          break lookUp;
+      }
+    }
+
+    ri = i;
+    lookDown:
+    for ry := y; ry > 0; ry -= 1
+    {
+      ri -= stride;
+      switch source[ri]
+      {
+        case '#':
+          when debug
+          {
+            count += 1000;
+          }
+          else
+          {
+            count += 1;
+          }
+          break lookDown;
+        case 'L':
+          break lookDown;
+      }
+    }
+
+    ri = i;
+    rx := x;
+    ry := y;
+    lookUL:
+    for ry < height-1 && rx > 0
+    {
+      rx -= 1;
+      ry += 1;
+      ri += stride-1;
+      switch source[ri]
+      {
+        case '#':
+          when debug
+          {
+            count += 10000;
+          }
+          else
+          {
+            count += 1;
+          }
+          break lookUL;
+        case 'L':
+          break lookUL;
+      }
+    }
+
+    ri = i;
+    rx = x;
+    ry = y;
+    lookUR:
+    for ry < height-1 && rx < stride-1
+    {
+      rx += 1;
+      ry += 1;
+      ri += stride+1;
+      switch source[ri]
+      {
+        case '#':
+          when debug
+          {
+            count += 100000;
+          }
+          else
+          {
+            count += 1;
+          }
+          break lookUR;
+        case 'L':
+          break lookUR;
+      }
+    }
+
+    ri = i;
+    rx = x;
+    ry = y;
+    lookDL:
+    for ry > 0 && rx > 0
+    {
+      rx -= 1;
+      ry -= 1;
+      ri += -stride-1;
+      switch source[ri]
+      {
+        case '#':
+          when debug
+          {
+            count += 1000000;
+          }
+          else
+          {
+            count += 1;
+          }
+          break lookDL;
+        case 'L':
+          break lookDL;
+      }
+    }
+
+    ri = i;
+    rx = x;
+    ry = y;
+    lookDR:
+    for ry > 0 && rx < stride-1
+    {
+      rx += 1;
+      ry -= 1;
+      ri += -stride+1;
+      switch source[ri]
+      {
+        case '#':
+          when debug
+          {
+            count += 10000000;
+          }
+          else
+          {
+            count += 1;
+          }
+          break lookDR;
+        case 'L':
+          break lookDR;
+      }
+    }
+
+    return count;
+  }
+
+  simulate :: proc(stride : int, source : ^[]rune, target : ^[]rune) -> int
+  {
+    changes := 0;
+    for c, i in source
+    {
+      newState := c;
+      switch c
+      {
+        case '.':
+        case 'L':
+          if count_neigbors(stride, source^, i, false) == 0
+          {
+            changes += 1;
+            newState = '#';
+          }
+        case '#':
+          if count_neigbors(stride, source^, i, false) >= 5
+          {
+            changes += 1;
+            newState = 'L';
+          }
+      }
+      target[i] = newState;
+    }
+    return changes;
+  }
+
+  source := &cellsA;
+  target := &cellsB;
+  changed := simulate(width, source, target);
+  for changed > 0
+  {
+    target, source = source, target;
+    changed = simulate(width, source, target);
+    for _, i in target^
+    {
+      counts[i] = count_neigbors(width, target^, i, false);
+    }
+    when DEBUG
+    {
+      for i := 0; i < len(target^); i += width
+      {
+        println(target^[i:i+width]);
+      }
+      print("\n");
+      for i := 0; i < len(counts); i += width
+      {
+        println(counts[i:i+width]);
+      }
+      println(width);
+      for i := 0; i < len(counts); i += width
+      {
+        for c in i..i+width-1
+        {
+          printf("% 3d  ", c%width);
+        }
+        print("\n");
+      }
+      print("\n");
+    }
+  }
+
+  lastCount := 0;
+  for c in target^
+  {
+    if c == '#'
+    {
+      lastCount += 1;
+    }
+  }
+
+  return lastCount;
+}

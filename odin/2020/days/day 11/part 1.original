@@ -1,0 +1,243 @@
+package main;
+
+import "core:fmt"
+import "core:strconv"
+import "core:strings"
+import "core:mem"
+import "core:os"
+import "core:slice"
+import "core:math"
+import "core:time"
+import "core:sys/windows"
+import "core:sort"
+
+import "../../aoc";
+
+// TEST ANSWERS ////////////////////////////////////////////////////////////////////////////////////
+
+PART_1_TEST_A_EXPECT : aoc.Result = 37;
+PART_1_TEST_B_EXPECT : aoc.Result = nil;
+PART_1_TEST_C_EXPECT : aoc.Result = nil;
+
+// SOLUTION ////////////////////////////////////////////////////////////////////////////////////////
+
+part_1 :: proc($MODE : aoc.LogicMode) -> aoc.Result
+{
+  using aoc, fmt;
+
+  DEBUG :: false;
+
+  input := get_input(MODE);
+
+  allLines := lines(input);
+
+  cols := len(allLines[0]);
+  rows := len(allLines);
+
+  cellsA := make([]rune, cols*rows);
+  cellsB := make([]rune, cols*rows);
+  counts := make([]int, cols*rows);
+
+  i := 0;
+  for line in allLines
+  {
+    for c in line
+    {
+      cellsA[i] = c;
+      i += 1;
+    }
+  }
+
+  count_neigbors :: proc(stride : int, source : []rune, index : int, $debug : bool) -> int
+  {
+    x := index % stride;
+    y := index / stride;
+    height := len(source)/stride;
+    count := 0;
+    if x > 0
+    {
+      if source[index-1] == '#'
+      {
+        when debug
+        {
+          count += 1;
+        }
+        else
+        {
+          count += 1;
+        }
+      }
+      if y > 0
+      {
+        if source[index-1-stride] == '#'
+        {
+          when debug
+          {
+            count += 10;
+          }
+          else
+          {
+            count += 1;
+          }
+        }
+      }
+      if y < height-1
+      {
+        if source[index-1+stride] == '#'
+        {
+          when debug
+          {
+            count += 100;
+          }
+          else
+          {
+            count += 1;
+          }
+        }
+      }
+    }
+    if x < stride-1
+    {
+      if source[index+1] == '#'
+      {
+        when debug
+        {
+          count += 1000;
+        }
+        else
+        {
+          count += 1;
+        }
+      }
+      if y > 0
+      {
+        if source[index+1-stride] == '#'
+        {
+          when debug
+          {
+            count += 10000;
+          }
+          else
+          {
+            count += 1;
+          }
+        }
+      }
+      if y < height-1
+      {
+        if source[index+1+stride] == '#'
+        {
+          when debug
+          {
+            count += 100000;
+          }
+          else
+          {
+            count += 1;
+          }
+        }
+      }
+    }
+    if y > 0
+    {
+      if source[index-stride] == '#'
+      {
+        when debug
+        {
+          count += 1000000;
+        }
+        else
+        {
+          count += 1;
+        }
+      }
+    }
+    if y < height-1
+    {
+      if source[index+stride] == '#'
+      {
+        when debug
+        {
+          count += 10000000;
+        }
+        else
+        {
+          count += 1;
+        }
+      }
+    }
+    return count;
+  }
+
+  simulate :: proc(stride : int, source : ^[]rune, target : ^[]rune) -> int
+  {
+    changes := 0;
+    for c, i in source
+    {
+      newState := c;
+      switch c
+      {
+        case '.':
+        case 'L':
+          if count_neigbors(stride, source^, i, false) == 0
+          {
+            changes += 1;
+            newState = '#';
+          }
+        case '#':
+          if count_neigbors(stride, source^, i, false) >= 4
+          {
+            changes += 1;
+            newState = 'L';
+          }
+      }
+      target[i] = newState;
+    }
+    return changes;
+  }
+
+  source := &cellsA;
+  target := &cellsB;
+  changed := simulate(cols, source, target);
+  for changed > 0
+  {
+    target, source = source, target;
+    changed = simulate(cols, source, target);
+    when DEBUG
+    {
+      for _, i in target^
+      {
+        counts[i] = count_neigbors(cols, target^, i, true);
+      }
+      for i := 0; i < len(target^); i += cols
+      {
+        println(target^[i:i+cols]);
+      }
+      for i := 0; i < len(counts); i += cols
+      {
+        println(counts[i:i+cols]);
+      }
+      println(cols);
+      for i := 0; i < len(counts); i += cols
+      {
+        for c in i..i+cols-1
+        {
+          printf("% 3d  ", c%cols);
+        }
+        print("\n");
+      }
+      print("\n");
+    }
+  }
+
+  lastCount := 0;
+  for c in target^
+  {
+    if c == '#'
+    {
+      lastCount += 1;
+    }
+  }
+
+  return lastCount;
+}
