@@ -17,7 +17,7 @@ import "../../../aoc";
 
 // TEST ANSWERS ////////////////////////////////////////////////////////////////////////////////////
 
-PART_1_TEST_A_EXPECT : aoc.Result = nil;
+PART_1_TEST_A_EXPECT : aoc.Result = 150;
 PART_1_TEST_B_EXPECT : aoc.Result = nil;
 PART_1_TEST_C_EXPECT : aoc.Result = nil;
 
@@ -40,14 +40,25 @@ part_1 :: proc($MODE : aoc.LogicMode) -> aoc.Result
 
   input := get_input(MODE);
   all_lines := lines(input);
-  all_nums := int_arr(all_lines);
 
-  when DEBUG do println(all_nums);
+  x := 0;
+  d := 0;
 
   for line, i in all_lines
   {
-    // all_words := words(line);
+    all_words := words(line);
+    val := int_val(all_words[1]);
+    switch all_words[0]
+    {
+      case "forward":
+        x += val;
+      case "down":
+        d += val;
+      case "up":
+        d -= val;
+    }
+    when DEBUG do println(line, x, d);
   }
 
-  return nil;
+  return x * d;
 }

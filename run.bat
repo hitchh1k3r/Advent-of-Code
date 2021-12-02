@@ -2,7 +2,7 @@
 
 pushd "odin"
 
-  pushd "2021/days/day 01"
+  pushd "2021/days/day 02"
 
     vcvarsall amd64 && odin run . -debug
 

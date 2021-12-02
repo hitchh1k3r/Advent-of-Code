@@ -40,6 +40,9 @@ part_2 :: proc($MODE : aoc.LogicMode) -> aoc.Result
 
   input := get_input(MODE);
   all_lines := lines(input);
+  all_nums := int_arr(all_lines);
+
+  when DEBUG do println(all_nums);
 
   for line, i in all_lines
   {
