@@ -15,18 +15,18 @@ cat :: proc(args: ..any) -> string
   return fmt.aprint(args=args, sep="");
 }
 
-int_val :: proc(str : string) -> int
+int_val :: proc(str : string, base := 10) -> int
 {
-  val, _ := strconv.parse_int(str);
+  val, _ := strconv.parse_int(str, base);
   return val;
 }
 
-int_arr :: proc(set : []string) -> []int
+int_arr :: proc(set : []string, base := 10) -> []int
 {
   result := make([]int, len(set));
   for v, i in set
   {
-    result[i] = int_val(v);
+    result[i] = int_val(v, base);
   }
   return result;
 }

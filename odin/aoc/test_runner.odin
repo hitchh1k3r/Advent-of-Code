@@ -27,23 +27,21 @@ get_input :: proc($MODE : LogicMode, loc := #caller_location) -> string
   when MODE == .SOLUTION
   {
     bytes, _ := os.read_entire_file("input.txt");
-    input, _ := replace_all(string(bytes), "\r", "");
   }
   when MODE == .TEST_A
   {
     bytes, _ := os.read_entire_file("test_a.txt");
-    input, _ := replace_all(string(bytes), "\r", "");
   }
   when MODE == .TEST_B
   {
     bytes, _ := os.read_entire_file("test_b.txt");
-    input, _ := replace_all(string(bytes), "\r", "");
   }
   when MODE == .TEST_C
   {
     bytes, _ := os.read_entire_file("test_c.txt");
-    input, _ := replace_all(string(bytes), "\r", "");
   }
+
+  input, _ := replace_all(string(bytes), "\r", "");
   return input;
 }
 
