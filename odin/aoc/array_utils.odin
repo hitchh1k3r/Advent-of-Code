@@ -16,7 +16,7 @@ lines :: proc(str : string) -> []string
 
 words :: proc(str : string) -> []string
 {
-  return strings.split(str, " ");
+  return strings.fields(str);
 }
 
 csv :: proc(str : string, delimiter : string = ",") -> []string
