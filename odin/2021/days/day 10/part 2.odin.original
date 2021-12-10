@@ -1,0 +1,139 @@
+package main;
+
+import "core:fmt"
+import "core:strconv"
+import "core:strings"
+import "core:mem"
+import "core:os"
+import "core:slice"
+import "core:reflect"
+import "core:math"
+import "core:time"
+import "core:sys/windows"
+import "core:sort"
+import "core:unicode/utf8"
+
+import "../../../aoc";
+
+// TEST ANSWERS ////////////////////////////////////////////////////////////////////////////////////
+
+PART_2_TEST_A_EXPECT : aoc.Result = 288957;
+PART_2_TEST_B_EXPECT : aoc.Result = nil;
+PART_2_TEST_C_EXPECT : aoc.Result = nil;
+
+// SOLUTION ////////////////////////////////////////////////////////////////////////////////////////
+
+part_2 :: proc($MODE : aoc.LogicMode) -> aoc.Result
+{
+  using aoc, fmt;
+
+  when MODE != .SOLUTION
+  { // TESTS MODE
+    DEBUG  :: true;
+    TIMING :: false;
+  }
+  else
+  { // SOLVE MODE
+    DEBUG  :: false;
+    TIMING :: false;
+  }
+
+
+  input := get_input(MODE);
+  all_lines := lines(input);
+
+  stack : Stack(rune, 1000);
+
+  auto_scores : [dynamic]int;
+  for line in all_lines
+  {
+    stack.index = 0;
+    error_score := 0;
+    char_loop: for c in line
+    {
+      switch c
+      {
+        case '(':
+          stack_push(&stack, c);
+        case '[':
+          stack_push(&stack, c);
+        case '{':
+          stack_push(&stack, c);
+        case '<':
+          stack_push(&stack, c);
+        case ')':
+          s := stack_pop(&stack);
+          if stack.index == 0
+          {
+            break char_loop;
+          }
+          if '(' != s
+          {
+            error_score += 3;
+            break char_loop;
+          }
+        case ']':
+          s := stack_pop(&stack);
+          if stack.index == 0
+          {
+            break char_loop;
+          }
+          if '[' != s
+          {
+            error_score += 57;
+            break char_loop;
+          }
+        case '}':
+          s := stack_pop(&stack);
+          if stack.index == 0
+          {
+            break char_loop;
+          }
+          if '{' != s
+          {
+            error_score += 1197;
+            break char_loop;
+          }
+        case '>':
+          s := stack_pop(&stack);
+          if stack.index == 0
+          {
+            break char_loop;
+          }
+          if '<' != s
+          {
+            error_score += 25137;
+            break char_loop;
+          }
+      }
+    }
+    if error_score == 0
+    {
+      auto_score := 0;
+      for stack.index > 0
+      {
+        auto_score *= 5;
+        c := stack_pop(&stack);
+        switch c
+        {
+          case '(':
+            auto_score += 1;
+          case '[':
+            auto_score += 2;
+          case '{':
+            auto_score += 3;
+          case '<':
+            auto_score += 4;
+        }
+      }
+      if auto_score != 0
+      {
+        append(&auto_scores, auto_score);
+      }
+    }
+  }
+
+  out := auto_scores[:];
+  slice.sort(out);
+  return out[len(out)/2]; // 3288458966
+}

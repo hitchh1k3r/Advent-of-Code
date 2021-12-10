@@ -22,6 +22,12 @@ stack_pop :: proc(using stack : ^$S/Stack($ELEMENT_TYPE, $CAPACITY)) -> ELEMENT_
   return stack.arr[index];
 }
 
+stack_peek :: proc(using stack : $S/Stack($ELEMENT_TYPE, $CAPACITY)) -> ELEMENT_TYPE
+{
+  assert(index > 0);
+  return stack.arr[index-1];
+}
+
 // Priority Queue //////////////////////////////////////////////////////////////////////////////////
 
 PriorityQueue :: struct(ELEMENT_TYPE : typeid, CAPACITY := 256)
