@@ -38,13 +38,24 @@ part_1 :: proc($MODE : aoc.LogicMode) -> aoc.Result
     TIMING :: false;
   }
 
-  input := get_input(MODE);
-  all_lines := lines(input);
-
-  for line, i in all_lines
+  coord_to_index :: proc(row, col : int) -> int
   {
-    // all_words := words(line);
+    index := ((col*(col+1))/2);
+    for n in 0..row-2
+    {
+     index += n+col;
+    }
+    return index;
   }
 
-  return nil;
+  index := coord_to_index(2978, 3083);
+
+  code := 20151125;
+  for i in 2..index
+  {
+    code *= 252533;
+    code %= 33554393;
+  }
+
+  return code;
 }
