@@ -58,51 +58,27 @@ part_1 :: proc($MODE : aoc.LogicMode) -> aoc.Result
     fold_place := int_val(bits[1]);
     if bits[0] == "fold along x"
     {
-      for pt, num in dots
+      for pt in slice.map_keys(dots)
       {
         if pt.x > fold_place
         {
+          delete_key(&dots, pt);
           pt := [2]int{pt.x, pt.y};
           pt.x = fold_place - (pt.x - fold_place);
           dots[pt] = 1;
         }
       }
-      needed := true;
-      for needed
-      {
-        needed = false;
-        for pt, num in dots
-        {
-          if pt.x > fold_place
-          {
-            needed = true;
-            delete_key(&dots, pt);
-          }
-        }
-      }
     }
     else
     {
-      for pt, num in dots
+      for pt in slice.map_keys(dots)
       {
         if pt.y > fold_place
         {
+          delete_key(&dots, pt);
           pt := [2]int{pt.x, pt.y};
           pt.y = fold_place - (pt.y - fold_place);
           dots[pt] = 1;
-        }
-      }
-      needed := true;
-      for needed
-      {
-        needed = false;
-        for pt, num in dots
-        {
-          if pt.y > fold_place
-          {
-            needed = true;
-            delete_key(&dots, pt);
-          }
         }
       }
     }
