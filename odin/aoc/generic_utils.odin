@@ -144,7 +144,7 @@ parse_input :: proc(str : string, args : ..ParseArg) -> (length: int, ok : bool)
           }
         }
     }
-    eprintf("Could not capture %v|%v| from string \"%v\" at \"%v\"\n", reflect.union_variant_typeid(args[arg_idx^]), args[arg_idx^], partial_str, str)
+    // eprintf("Could not capture %v|%v| from string \"%v\" at \"%v\"\n", reflect.union_variant_typeid(args[arg_idx^]), args[arg_idx^], partial_str, str[:min(len(str), 100)])
     return 0, false
   }
 
@@ -208,7 +208,7 @@ parse_input :: proc(str : string, args : ..ParseArg) -> (length: int, ok : bool)
           return start, end, ok
         }
     }
-    eprintf("Could not find boundry %v|%v| from string \"%v\"\n", reflect.union_variant_typeid(arg), arg, str)
+    // eprintf("Could not find boundry %v|%v| from string \"%v\"\n", reflect.union_variant_typeid(arg), arg, str[:min(len(str), 100)])
     return 0, 0, false
   }
 
@@ -223,12 +223,12 @@ parse_input :: proc(str : string, args : ..ParseArg) -> (length: int, ok : bool)
       case typeid_of(SmartCapture): fallthrough
       case typeid_of(RuneCapture): fallthrough
       case typeid_of(SizedCapture):
-        if length, ok := parse_capture(str, args, &arg_idx); ok {
-          if len(str) >= length {
-            str = str[length:]
-            length += length
+        if advance, ok := parse_capture(str, args, &arg_idx); ok {
+          if len(str) >= advance {
+            str = str[advance:]
+            length += advance
           } else {
-            eprintf("Capture %v|%v| is misplaced in string \"%v\"\n", reflect.union_variant_typeid(args[arg_idx]), args[arg_idx], str)
+            // eprintf("Capture %v|%v| is misplaced in string \"%v\"\n", reflect.union_variant_typeid(args[arg_idx]), args[arg_idx], str[:min(len(str), 100)])
             return length, false
           }
         } else {
@@ -245,7 +245,7 @@ parse_input :: proc(str : string, args : ..ParseArg) -> (length: int, ok : bool)
             str = str[end:]
             length += end
           } else {
-            eprintf("Boundry %v|%v| is misplaced in string \"%v\"\n", reflect.union_variant_typeid(args[arg_idx]), args[arg_idx], str)
+            // eprintf("Boundry %v|%v| is misplaced in string \"%v\"\n", reflect.union_variant_typeid(args[arg_idx]), args[arg_idx], str[:min(len(str), 100)])
             return length, false
           }
         } else {
