@@ -144,7 +144,7 @@ parse_input :: proc(str : string, args : ..ParseArg) -> (length: int, ok : bool)
           }
         }
     }
-    // eprintf("Could not capture %v|%v| from string \"%v\" at \"%v\"\n", reflect.union_variant_typeid(args[arg_idx^]), args[arg_idx^], partial_str, str[:min(len(str), 100)])
+    eprintf("Could not capture %v|%v| from string \"%v\" at \"%v\"\n", reflect.union_variant_typeid(args[arg_idx^]), args[arg_idx^], partial_str, str[:min(len(str), 100)])
     return 0, false
   }
 
@@ -208,7 +208,7 @@ parse_input :: proc(str : string, args : ..ParseArg) -> (length: int, ok : bool)
           return start, end, ok
         }
     }
-    // eprintf("Could not find boundry %v|%v| from string \"%v\"\n", reflect.union_variant_typeid(arg), arg, str[:min(len(str), 100)])
+    eprintf("Could not find boundry %v|%v| from string \"%v\"\n", reflect.union_variant_typeid(arg), arg, str[:min(len(str), 100)])
     return 0, 0, false
   }
 
@@ -228,7 +228,7 @@ parse_input :: proc(str : string, args : ..ParseArg) -> (length: int, ok : bool)
             str = str[advance:]
             length += advance
           } else {
-            // eprintf("Capture %v|%v| is misplaced in string \"%v\"\n", reflect.union_variant_typeid(args[arg_idx]), args[arg_idx], str[:min(len(str), 100)])
+            eprintf("Capture %v|%v| is misplaced in string \"%v\"\n", reflect.union_variant_typeid(args[arg_idx]), args[arg_idx], str[:min(len(str), 100)])
             return length, false
           }
         } else {
@@ -245,7 +245,7 @@ parse_input :: proc(str : string, args : ..ParseArg) -> (length: int, ok : bool)
             str = str[end:]
             length += end
           } else {
-            // eprintf("Boundry %v|%v| is misplaced in string \"%v\"\n", reflect.union_variant_typeid(args[arg_idx]), args[arg_idx], str[:min(len(str), 100)])
+            eprintf("Boundry %v|%v| is misplaced in string \"%v\"\n", reflect.union_variant_typeid(args[arg_idx]), args[arg_idx], str[:min(len(str), 100)])
             return length, false
           }
         } else {

@@ -3,7 +3,7 @@
 pushd "odin"
 
   rem pushd "build_submit"
-  pushd "2021/days/day 19"
+  pushd "2021/days/day 22"
 
     vcvarsall amd64 && odin run . -debug
 
