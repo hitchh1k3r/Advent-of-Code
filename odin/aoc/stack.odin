@@ -66,7 +66,7 @@ priority_queue_pop :: proc(using queue : ^$Q/PriorityQueue($ELEMENT_TYPE, $CAPAC
       max_index = i;
     }
   }
-  slice := arr[max_index:];
+  slice := arr[max_index:index+1];
   shift_left(&slice, 1);
   index -= 1;
   return max_item;
