@@ -53,34 +53,54 @@ part_2 :: proc($MODE : aoc.LogicMode) -> aoc.Result
 
   overlap :: proc(a, b : Cuboid) -> Cuboid {
     result : Cuboid
-    result.min_pos := max(a.min_pos, b.min_pos)
-    result.max_pos := min(a.max_pos, b.max_pos)
-    if result.max_pos.x >= result.min_pos.x &&
-       result.max_pos.y >= result.min_pos.y &&
-       result.max_pos.z >= result.min_pos.z
-    {
-      result.valid = true
+    if a.valid && b.valid {
+      result.min_pos.x = max(a.min_pos.x, b.min_pos.x)
+      result.min_pos.y = max(a.min_pos.y, b.min_pos.y)
+      result.min_pos.z = max(a.min_pos.z, b.min_pos.z)
+      result.max_pos.x = min(a.max_pos.x, b.max_pos.x)
+      result.max_pos.y = min(a.max_pos.y, b.max_pos.y)
+      result.max_pos.z = min(a.max_pos.z, b.max_pos.z)
+      if result.max_pos.x >= result.min_pos.x &&
+         result.max_pos.y >= result.min_pos.y &&
+         result.max_pos.z >= result.min_pos.z
+      {
+        result.valid = true
+      }
     }
     return result
   }
 
-  for i := len(all_lines); i >= 0; i -= 1 {
+  area_excluding :: proc(cube : Cuboid, exclude : []Cuboid) -> int {
+    if !cube.valid {
+      return 0
+    }
+
+    if len(exclude) == 0 {
+      diff := cube.max_pos - cube.min_pos + {1, 1, 1}
+      return prod(diff[:])
+    }
+
+    diff := cube.max_pos - cube.min_pos + {1, 1, 1}
+    area := prod(diff[:])
+    for ex_cube, idx in exclude {
+      ex_cube := overlap(ex_cube, cube)
+      if ex_cube.valid {
+        area -= area_excluding(ex_cube, exclude[:idx])
+      }
+    }
+    return area
+  }
+
+  on_area := 0
+
+  for i := len(all_lines)-1; i >= 0; i -= 1 {
     line := all_lines[i]
     state : State
     cuboid : Cuboid
+    cuboid.valid = true
     if _, ok := aoc.parse_input(line, capture_enum(&state), " x=", &cuboid.min_pos.x, "..", &cuboid.max_pos.x, ",y=", &cuboid.min_pos.y, "..", &cuboid.max_pos.y, ",z=", &cuboid.min_pos.z, "..", &cuboid.max_pos.z); ok {
       if state == .on {
-        area := prod((cuboid.max_pos - cuboid.min_pos)[:])
-        for prev in prev_cuboids {
-          min_overlap := max(cuboid.min_pos, prev.min_pos)
-          max_overlap := min(cuboid.max_pos, prev.max_pos)
-          if max_overlap.x >= min_overlap.x &&
-             max_overlap.y >= min_overlap.y &&
-             max_overlap.z >= min_overlap.z
-          {
-            min_area := 
-          }
-        }
+        on_area += area_excluding(cuboid, prev_cuboids[:])
       }
       append(&prev_cuboids, cuboid)
     } else {
@@ -88,16 +108,5 @@ part_2 :: proc($MODE : aoc.LogicMode) -> aoc.Result
     }
   }
 
-  count := 0
-
-  for x in -50..50 do for y in -50..50 do for z in -50..50 {
-    if world[{x,y,z}] == .on {
-      pos := V3{x,y,z}
-      if pos in world && world[pos] == .on {
-        count += 1
-      }
-    }
-  }
-
-  return count
+  return on_area
 }
