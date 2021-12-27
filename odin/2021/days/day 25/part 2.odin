@@ -17,37 +17,13 @@ import "../../../aoc";
 
 // TEST ANSWERS ////////////////////////////////////////////////////////////////////////////////////
 
-PART_2_TEST_A_EXPECT : aoc.Result = nil;
-PART_2_TEST_B_EXPECT : aoc.Result = nil;
-PART_2_TEST_C_EXPECT : aoc.Result = nil;
+PART_2_TEST_A_EXPECT : aoc.Result = nil
+PART_2_TEST_B_EXPECT : aoc.Result = nil
+PART_2_TEST_C_EXPECT : aoc.Result = nil
 
 // SOLUTION ////////////////////////////////////////////////////////////////////////////////////////
 
 part_2 :: proc($MODE : aoc.LogicMode) -> aoc.Result
 {
-  using aoc, fmt;
-
-  when MODE != .SOLUTION
-  { // TESTS MODE
-    DEBUG  :: true;
-    TIMING :: false;
-  }
-  else
-  { // SOLVE MODE
-    DEBUG  :: false;
-    TIMING :: false;
-  }
-
-  input := get_input(MODE);
-  all_lines := lines(input);
-  all_nums := int_arr(all_lines);
-
-  when DEBUG do println(all_nums);
-
-  for line, i in all_lines
-  {
-    // all_words := words(line);
-  }
-
-  return nil;
+  return 0
 }
